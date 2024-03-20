@@ -1,7 +1,7 @@
 .. Dpai documentation master file.
 
 
-Welcome to Dpai's documentation!
+Welcome to Dpai's documentation! Something Else
 =====================================
 
 Dpai's utility here.
