@@ -1,0 +1,30 @@
+# Build Packages
+setuptools
+wheel
+twine
+build
+
+# Lint & Coverage
+flake8
+flake8-pyproject
+mypy
+coverage
+
+# Testing
+pytest-cov
+
+# API
+fastapi
+httpx
+uvicorn[standard]
+mock
+
+sqlalchemy
+pika
+redis
+requests
+marshmallow
+numpy
+celery
+aiokafka
+joblib
