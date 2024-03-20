@@ -1,6 +1,7 @@
 ![build](https://github.com/criss-wang/dpai/workflows/build/badge.svg) ![build](https://github.com/criss-wang/dpai/workflows/docs/badge.svg) ![lint](https://github.com/criss-wang/dpai/workflows/lint/badge.svg)
 [![codecov](https://codecov.io/gh/Criss-Wang/dpai/graph/badge.svg?token=D73VGZR7NN)](https://codecov.io/gh/Criss-Wang/dpai)
-[![license](https://img.shields.io/github/license/criss-wang/dpai)](https://github.com/criss-wang/dpai/blob/master/LICENSE) [![commit](https://img.shields.io/github/last-commit/criss-wang/dpai)](https://github.com/criss-wang/dpai/commits/master)
+![GitHub License](https://img.shields.io/github/license/criss-wang/dpai)
+ [![commit](https://img.shields.io/github/last-commit/criss-wang/dpai)](https://github.com/criss-wang/dpai/commits/master)
 
 [Some Info]
 
