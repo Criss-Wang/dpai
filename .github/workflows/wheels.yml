@@ -49,4 +49,4 @@ jobs:
           pip install build twine flake8 setuptools wheel
 
       - name: Build wheels
-        run: run: pip wheel -w wheelhouse
+        run: pip wheel -w wheelhouse

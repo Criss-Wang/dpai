@@ -30,13 +30,13 @@ jobs:
         run: |
           python -m build
           pip install dist/*.whl
-          python -m pytest
+          pytest
       - name: Build dist and test with pytest on Windows
         if: matrix.os == 'windows-latest'
         run: |
           python -m build
           pip install (Get-ChildItem dist/*.whl)
-          python -m pytest
+          pytest
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4-beta
         with:
