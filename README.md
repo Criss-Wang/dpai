@@ -2,7 +2,7 @@
 ![docs](https://github.com/criss-wang/dpai/workflows/docs/badge.svg) 
 ![lint](https://github.com/criss-wang/dpai/workflows/lint/badge.svg)
 [![codecov](https://codecov.io/gh/Criss-Wang/dpai/graph/badge.svg?token=D73VGZR7NN)](https://codecov.io/gh/Criss-Wang/dpai)
-![GitHub License](https://img.shields.io/github/license/criss-wang/dpai)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![commit](https://img.shields.io/github/last-commit/criss-wang/dpai)](https://github.com/criss-wang/dpai/commits/master)
 
 [Some Info]
