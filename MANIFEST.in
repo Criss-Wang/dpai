@@ -3,7 +3,4 @@ include README.md
 include setup.py
 
 recursive-include src/dpai/configs *
-recursive-include src/dpai/logs *
-recursive-include src/dpai/model_files *
-recursive-include src/dpai/static *
-recursive-include src/dpai/templates *
+recursive-include src/dpai/model_db *

@@ -1,24 +1,51 @@
 name: build
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "src/dpai/**"
+      - "tests/**"
+      - "setup.py"
+      - ".github/workflows/python-package.yml"
+  pull_request:
+    paths:
+      - "src/dpai/**"
+      - "tests/**"
+      - "setup.py"
+      - ".github/workflows/python-package.yml"
 jobs:
-  run:
-    runs-on: ubuntu-latest
+  build:
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+        os: [ubuntu-latest, macos-latest, macos-14, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up Python 3.11
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Run tests and collect coverage
         run: |
-          pip install -e .
-          pytest
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Build dist and test with pytest
+        if: matrix.os != 'windows-latest'
+        run: |
+          python -m build
+          pip install dist/*.whl
+          python -m pytest
+      - name: Build dist and test with pytest on Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          python -m build
+          pip install (Get-ChildItem dist/*.whl)
+          python -m pytest
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4-beta
         with:

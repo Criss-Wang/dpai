@@ -90,8 +90,5 @@ sample_architecture_placeholder
 8. Celery component: add `try/except KeyboardInterrupt` as a potential fix to continuing celery worker
 9. Kafka component: add APIs for submitting data to and listening result from kafka
 
-- `python -m coverage run --source DeployableAI -m unittest`
-- `coverage html && google-chrome htmlcov/index.html`
-
 - `python setup.py sdist`
 - `twine upload dist/*`

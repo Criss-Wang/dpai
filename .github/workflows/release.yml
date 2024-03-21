@@ -1,0 +1,118 @@
+name: Python package build and publish
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  deploy-wheels-linux:
+    name: Deploy wheels on Linux for ${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [311, 312]
+        manylinux-image: [manylinux2014]
+        arch: [auto, aarch64]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine flake8 setuptools wheel
+
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel -U
+
+      - name: Build wheels
+        run: python -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_BUILD: 'cp${{ matrix.python-version }}-*'
+          CIBW_SKIP: '*musllinux*'
+          CIBW_ARCHS: ${{ matrix.arch }}
+          CIBW_MANYLINUX_*_IMAGE: ${{ matrix.manylinux-image }}
+          CIBW_MANYLINUX_I686_IMAGE: ${{ matrix.manylinux-image }}
+
+      - name: Publish wheels to PyPI Unix
+        continue-on-error: true
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          twine upload wheelhouse/*.whl
+
+  deploy-wheels-macos-windows:
+    name: Deploy wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, macos-14, windows-latest]
+        python-version: [311, 312]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine flake8 setuptools wheel
+
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel -U
+
+      - name: Build wheels
+        run: python -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_BUILD: 'cp${{ matrix.python-version }}-*'
+
+      - name: Publish wheels to PyPI Unix
+        if: matrix.os != 'windows-latest' 
+        continue-on-error: true
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          twine upload wheelhouse/*.whl
+
+      - name: Publish wheels to PyPI Windows
+        if: matrix.os == 'windows-latest' 
+        continue-on-error: true
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          twine upload (Get-ChildItem wheelhouse/*.whl)
+
+  deploy-tar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine flake8 setuptools wheel
+      - name: Build source tar
+        run: |
+          python -m build
+      - name: Publish wheels to PyPI
+        continue-on-error: true
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          twine upload dist/*tar*

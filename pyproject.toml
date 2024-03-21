@@ -15,8 +15,8 @@ classifiers = [
   "Operating System :: POSIX :: Linux",
   "Operating System :: Microsoft :: Windows",
   "License :: OSI Approved :: Apache Software License",
-  "Topic :: Software Development :: Machine Learning",
-  "Topic :: Software Development :: Deployment",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Software Development :: Libraries",
 ]
 dependencies = ["objprint>0.1.3"]
 description = "ML Model Serving Package"
