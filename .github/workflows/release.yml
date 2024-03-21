@@ -28,7 +28,7 @@ jobs:
           pip install build twine flake8 setuptools wheel
 
       - name: Build wheels
-        run: pip wheel -w wheelhouse
+        run: pip wheel . --wheel-dir=wheelhouse
 
       - name: Publish wheels to PyPI Unix
         continue-on-error: true
@@ -60,7 +60,7 @@ jobs:
           pip install build twine flake8 setuptools wheel
 
       - name: Build wheels
-        run: pip wheel -w wheelhouse
+        run: pip wheel . --wheel-dir=wheelhouse
 
       - name: Publish wheels to PyPI Unix
         if: matrix.os != 'windows-latest' 

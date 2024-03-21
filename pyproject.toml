@@ -46,7 +46,7 @@ count = true
 version = { attr = "dpai.__version__" }
 
 [tool.pytest.ini_options]
-addopts = ["--cov=src", "--cov-report=term-missing"]
+addopts = ["--cov=dpai", "--cov-report=term-missing"]
 filterwarnings = ["ignore::DeprecationWarning"]
 testpaths = ["tests"]
 
