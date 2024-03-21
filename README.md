@@ -5,90 +5,65 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![commit](https://img.shields.io/github/last-commit/criss-wang/dpai)](https://github.com/criss-wang/dpai/commits/master)
 
-[Some Info]
+## Introduction
+Deployable AI aims to enable quick inference serving in local environment in various styles of your choice.
 
-- currently supported request type: `request_content_type=application/json`
+## Getting Started
+### Installation
+To install this package, the easiest is to run `pip install dpai`. If you prefer directly install using this repo code, you can clone it and run `make` command directly. 
 
-[Instructions]
-
+### Basic Usage
 1. save your model in `.joblib` format. Example:
 
-```python
-from joblib import dump
+    ```python
+    from joblib import dump
 
-your_model_artifact = {
-    "model": your_model,
-    # other metadata
-    "tokenizer": ...,
-    "quantization": ...,
-    ...
-}
+    your_model_artifact = {
+        "model": your_model,
+        # other metadata
+        "tokenizer": ...,
+        "quantization": ...,
+        ...
+    }
 
-dump(your_model_artifact, "MODEL_ARTIFACT_PATH.joblib")
-```
+    dump(your_model_artifact, "MODEL_ARTIFACT_PATH.joblib")
+    ```
 
 2. Create inference script `inference.py` with two functions `input_fn` and `predict_fn` (similar to how [sagemaker inference](https://docs.aws.amazon.com/sagemaker/latest/dg/neo-deployment-hosting-services-prerequisites.html) does). Usually you'll create an inference file for each model you register. Example:
 
-```python
-def input_fn(data):
-    processed_data_for_model_input = ...  # some transformation logic
-    return processed_data_for_model_input
+    ```python
+    def input_fn(data):
+        processed_data_for_model_input = ...  # some transformation logic
+        return processed_data_for_model_input
 
-def predict_fn(input, model):
-    result = model(input)
-    return result
-```
+    def predict_fn(input, model):
+        result = model(input)
+        return result
+    ```
 
-3. Register model: run `deployaible register --name=MODLE_NAME --model_path=MODEL_ARTIFACT_PATH_JOBLIB --inference_path=INFERENCE_SCRIPT_PATH`
+3. Register model: run `deployaible register --name=your_model_name --model_path=your_model_path --inference_path=your_inference_path`
 4. Serve your model: run `deployaible serve --port=your_port`
    You will get a backend running on `your_port` (default is 9000). A sample endpoint will be `localhost:9000/your_model_name/predict`.
-5. Test endpoint: run
+5. Format your data input in JSON style: `{"data": your_input_data}`. Make sure it aligns with the `input_fn` your infrence script
+6. Test endpoint: example request
 
-```shell
-curl -X POST -H "Content-Type: application/json" -d '{"data": ["val"]}' http://localhost:9100/GPT4/predict
-```
+    ```shell
+    curl -X POST -H "Content-Type: application/json" -d '{"data": ["val"]}' http://localhost:9100/GPT4/predict
+    ```
 
 6. You can also the APIs via swagger UI on `http://localhost:your_port/docs`
 
-sample_notebook_placeholder
-
-sample_architecture_placeholder
+### Sample notebook
 
 
 ## Highlights
-
 - Supports multiple types of model serving
 - Sample UI
 - Works on Linux/MacOS/Windows
 
-## Install
 
-[TODO] git instruction or pip install instruction
-
-## Basic Usage
-
-## Advanced Usage
-
-## Misc
-
-## Performance
+## Limitations
+- Currently only supported request type is `application/json`.
 
 ## Documentation
-
-[TODO] set up using [this link](https://docs.readthedocs.io/en/stable/intro/import-guide.html)
-
-## Bugs/Requests
-
-## License
-
-## TODO's
-
-1. `models.py` - `init` method needs to use model loader and allows torch/pickle/sklearn types
-2. `model_manager.py` - enforce Singleton pattern with right locking mechanisms (also need to change the test case)
-
-7. bugs: `AssertionError: write() before start_response` when go to predict page then go back
-8. Celery component: add `try/except KeyboardInterrupt` as a potential fix to continuing celery worker
-9. Kafka component: add APIs for submitting data to and listening result from kafka
-
-- `python setup.py sdist`
-- `twine upload dist/*`
+See the doc [here](https://dpai.readthedocs.io/)
