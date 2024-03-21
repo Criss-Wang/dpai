@@ -1,8 +1,6 @@
 .PHONY: refresh build install build_dist json release lint test docs
 
-refresh_old: clean build install lint
-
-refresh: clean test lint docs
+refresh: clean build install test lint docs
 
 build:
 	python -m build
@@ -30,7 +28,7 @@ test:
 	python -m pytest
 
 clean:
-	rm model.db
+	rm models.db
 	rm -rf __pycache__
 	rm -rf */__pycache__
 	rm -rf build
