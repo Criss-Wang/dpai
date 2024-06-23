@@ -1,0 +1,34 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+    -   id: check-yaml
+        exclude: ^(.*README.md|data/|notebooks/|.*.csv|deployment/|text-generation-inference/)
+    -   id: end-of-file-fixer
+        exclude: ^(.*README.md|data/|notebooks/|sql/|.*.csv|text-generation-inference/|deployment/services/rag/)
+    -   id: trailing-whitespace
+        exclude: ^(data/|notebooks/|.*.csv|text-generation-inference/)
+    - id: requirements-txt-fixer
+    - id: check-added-large-files
+      args: [--maxkb=1024]
+    - id: check-json
+    - id: check-merge-conflict
+    - id: name-tests-test
+      exclude: ^(.*README.md|data/|notebooks/|sql/|.*.csv|text-generation-inference/|tmp/)
+-   repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+    -   id: black
+        exclude: ^(.*README.md|data/|notebooks/|sql/|.*.csv|text-generation-inference/)
+-   repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.0
+    hooks:
+      - id: gitleaks
+-   repo: local
+    hooks:
+      - id: pytest-check
+        name: pytest-check
+        entry: pytest
+        language: system
+        pass_filenames: false
+        always_run: true

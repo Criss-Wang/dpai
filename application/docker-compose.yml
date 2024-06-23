@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - ~/apps/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=languse
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "languse", "-U", "admin"]
+      interval: 10s
+      retries: 5
+
+  langfuse:
+    image: ghcr.io/langfuse/langfuse:2
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://admin:admin@postgres:5432/languse"
+      NEXTAUTH_URL: "http://localhost:3000"
+      NEXTAUTH_SECRET: "mysecret"
+      SALT: "mysalt"
+    ports:
+      - "3000:3000"

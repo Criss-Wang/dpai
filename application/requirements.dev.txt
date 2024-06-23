@@ -1,0 +1,14 @@
+#-r requirements.txt
+black
+coverage~=6.5.0
+flake8~=6.0.0
+mlflow>=2.4.0
+mock~=4.0.3
+pytest-mock
+
+# Tests
+pytest~=7.2.0
+rouge-score>=0.1.2
+
+# jFrog dependency
+wheel~=0.38.4

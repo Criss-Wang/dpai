@@ -1,0 +1,158 @@
+#!/usr/bin/env groovy
+
+@Library(value = 'devops@master', changelog = false) _
+
+def APP_TAG = "UNKNOWN"
+
+pipeline {
+  agent any
+  options {
+    skipDefaultCheckout(true)
+    timeout(time: 1, unit: 'HOURS')
+  }
+
+  parameters {
+    choice(
+        choices: [
+        'dev',
+        'uat',
+        'prod',
+        ],
+        name: 'environment'
+    )
+    booleanParam(
+      defaultValue: false,
+      description: 'Force push the docker tag to  K8s',
+      name: 'force_deploy_to_k8s'
+    )
+    booleanParam(
+      defaultValue: false,
+      description: 'Scan the docker image for CVEs',
+      name: 'cve_scan'
+    )
+    string(
+      defaultValue: 'master',
+      name: 'devops_branch',
+      description:'The DevOps repo branch to retrieve the service definition from.'
+    )
+  }
+
+  stages {
+s    stage('Setup steps on PR only') {
+        when {
+          changeRequest()
+         }
+      steps {
+        script {
+          env.BRANCH_NAME = env.CHANGE_BRANCH
+        }
+      }
+    }
+
+    stage('Setup') {
+      steps {
+        script {
+          GIT_REPO_NAME='app_name'
+          IMAGE_NAME = GIT_REPO_NAME
+          IMAGE_VERSION_TAG=env.BRANCH_NAME.replaceAll("[^A-Za-z0-9]", "_")
+        }
+      }
+    }
+
+    stage('Build Docker Images') {
+      environment {
+        DOCKER_BUILDKIT = "1"
+      }
+      steps {
+        script {
+          withRegistryAccess('aws-dev') {
+            withCredentials([ usernamePassword(credentialsId: '', usernameVariable: '', passwordVariable: '') ]) {
+              PIP_EXTRA_INDEX_URL=''
+              sh "docker build --build-arg PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL} -t ${IMAGE_NAME}:${IMAGE_VERSION_TAG} -f docker/Dockerfile ."
+            }
+          }
+        }
+      }
+    }
+
+    stage('Run flake8') {
+      steps {
+        script {
+          sh "docker run --rm --entrypoint ./entrypoints/tests/flake.sh ${IMAGE_NAME}:${IMAGE_VERSION_TAG}"
+        }
+      }
+    }
+
+    stage('Run unit tests') {
+      steps {
+        script {
+          sh "docker run --rm --entrypoint ./entrypoints/tests/unit.sh ${IMAGE_NAME}:${IMAGE_VERSION_TAG}"
+        }
+      }
+    }
+
+    stage('CVE Scan') {
+      when {
+        anyOf {
+          expression {params.cve_scan == true}
+        }
+      }
+      steps {
+        script {
+          microserviceCI.cveScan(
+            GIT_REPO_NAME,
+            IMAGE_NAME,
+            IMAGE_VERSION_TAG
+          )
+        }
+      }
+    }
+
+    stage('Push to ECR') {
+      when {
+        anyOf {
+          expression {params.force_deploy_to_k8s == true}
+        }
+      }
+      steps {
+        script {
+          withRegistryAccess('aws-dev') { registry ->
+            pushToRegistry(
+              "${IMAGE_NAME}:${IMAGE_VERSION_TAG}",
+              registry.imageName(IMAGE_NAME, APP_TAG)
+            )
+          }
+        }
+      }
+    }
+
+    stage('Service Deployment') {
+      when {
+        anyOf {
+          expression {params.force_deploy_to_k8s == true}
+        }
+      }
+      steps {
+        script {
+          microserviceCI.deploy(
+            params.environment,
+            params.devops_branch,
+            'llm-rag-rest-service',
+            APP_TAG,
+            params.force_deploy_to_k8s,
+            false
+          )
+        }
+      }
+    }
+  }
+
+  post {
+    failure {
+      emailext body: '''${SCRIPT, template="groovy-html.template"}''',
+        subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}",
+        to: 'email_for_app_admin',
+        mimeType: 'text/html'
+    }
+  }
+}
